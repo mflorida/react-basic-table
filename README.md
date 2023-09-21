@@ -1,70 +1,112 @@
-# Getting Started with Create React App
+# React Basic Table
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Sometimes you don't need a huge table component libary. Sometimes you just need
+a little help setting up rendering options for your data table.
 
-## Available Scripts
+1) Define array of column options:
+    - specify data key
+    - specify column header text
+    - optionally use a header cell renderer
+    - optionally use a body cell renderer
+    - sortable?
+    - filterable? whole table? by column?
+    
+2) Pass the column options as a `columns` prop to the `<BasicTable/>` component
+    
+3) Define optional config object as a `config` prop for customizing the table itself and its
+child elements (`thead`, `tbody`, `tfoot`, `tr`, `th`, `td`)
 
-In the project directory, you can run:
+4) Don't forget your data! (either array of objects or 2-D array)
 
-### `yarn start`
+That usually covers a lot of basic use cases. But if you _really_ want extra
+functionality, the Basic Table API allows easy customization by passing special values
+or functions to props of the `<BasicTable/>` component.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+The config should look something like this:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```jsx
+const columnsConfig = [
+    {
+        key: 'username',
+        header: 'Username',
+        cell: (rowData) => {
+            return (
+                <Link to={`/users/${rowData.username}`}>
+                    {userName}
+                </Link>
+            )
+        },
+        //sort: true,  // not yet implemented
+        //filter: true // not yet implemented
+    },
+    {
+        // most basic usage - data key and header label
+        key: 'firstName',
+        header: 'First Name'
+    },
+    {
+        key: 'lastName',
+        header: 'Last Name'
+    },
+    {
+        // null key means there is no directly 
+        // corresponding property in the data object
+        key: null,  
+        header: () => <><Icon type={'postage'}/>Full Address</>,
+        cell: ({ street, city, state, zip }) => `${street}, ${city}, ${state} ${zip}`
+    },
+    {
+        key: 'lastLogin',
+        header: 'Last Login',
+        th: { style: { textAlign: 'center '} },
+        td: { style: { textAlign: 'center', fontFamily: 'monospace' } },
+        cell: ({ lastLogin }) => (new Date(lastLogin)).toLocaleString(),
+    }
+]
+```
 
-### `yarn test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Each column config object can use the following properties:
 
-### `yarn build`
+- `key {string|null}`: the name of the property in the row data to return the value from
+  (null if the cell should be rendered with a custom renderer)
+  
+- `header {string|Function}`: text to show in the column header 
+  (may optionally use a function for custom rendering)
+  
+- `cell? {Function}`: function to use for rendering cell contents. 
+  if omitted, the value from the data will be passed as-is
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `th? {object|Function}`: optional object or function with attributes for `thead > th` elements in this column
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `td? {object|Function}`: optional object or function with attributes for `tbody > td` elements in this column
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- `footer? {string|Function}`: text to show in the column footer
+  (may optionally use a function for custom rendering)
 
-### `yarn eject`
+[//]: # "- `sort? {boolean|Function}`: should this column be sortable?"
+[//]: #   "(optionally use a custom function for sorting)"
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+[//]: # "- `filter? {boolean|Function}`: should this column be filterable (using text input element)?"
+[//]: #   "(optionally use a custom function for filtering)"
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+[//]: # "- `footerStyle? {object}`: optional object with custom styles for footer cell"
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- - -
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The `<BasicTable/>` component can receive an object prop named `config` to customize the 
+`<table>` element itself and its structural child elements:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `table? {object}`: optional attributes for main `<table>` element
+- `thead? {object}`: optional attributes for `<thead>` element
+- `thead.tr? {object}`: optional props for `<tr>` elements in `<thead>`
+- `thead.th? {object}`: optional props for `<th>` elements in `<thead>`
+- `tbody? {object}`: optional attributes for `<tbody>` element
+- `tbody.tr? {object}`: optional props for `<tr>` elements in `<tbody>`
+- `tbody.td? {object}`: optional props for `<td>` elements in `<tbody>`
+- `tfoot? {object}`: optional attributes for `<thead>` element
+- `tfoot.tr? {object}`: optional props for `<tr>` elements in `<tfoot>`
+- `tfoot.td? {object}`: optional props for `<td>` elements in `<tfoot>`
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
