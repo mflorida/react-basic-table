@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import Table from './BasicTable';
 
-import teams from './mock/data/teams.json'
+import teams from './mock/teams.json'
 import { useState } from 'react';
 import { isFunction, mergeProps } from './lib/utils';
 
