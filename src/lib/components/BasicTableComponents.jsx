@@ -5,7 +5,7 @@ import {
   funcOr,
   firstDefined,
   isFunction
-} from './lib/utils';
+} from '../utils';
 
 // Main component that's used to render everything.
 // Using this helps cut down on boilerplate.

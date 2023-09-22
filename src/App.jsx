@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Table from './BasicTable';
+import Table from './lib/components/BasicTable';
 
 import teams from './mock/teams.json'
 import { useState } from 'react';

@@ -6,7 +6,7 @@ import {
   funcOr,
   firstDefined,
   isFunction
-} from './lib/utils';
+} from '../utils';
 
 
 export default function BasicTable(props) {
