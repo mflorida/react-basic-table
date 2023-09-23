@@ -1,29 +1,26 @@
-import React from 'react';
-import './App.css';
+import React, { useState } from 'react';
+import { isFunction, mergeProps } from './lib/utils';
 import Table from './lib/components/BasicTable';
 
+import './App.css';
+
 import teams from './mock/teams.json'
-import { useState } from 'react';
-import { isFunction, mergeProps } from './lib/utils';
+
+// Add 'rowKey' and 'key' fields
+for (let [idx, team] of teams.entries()) {
+  team.rowKey = team.uid || team.id || idx;
+  team.key = team.key || team.rowKey;
+}
+
+function showPlayers(e, data) {
+  e.preventDefault();
+  console.log(data.teamMembers)
+}
 
 export default function App() {
+  const [teamsList, setTeamsList] = useState([...teams]);
 
-  function showPlayers(e, data) {
-    e.preventDefault();
-    console.log(data.teamMembers)
-  }
-
-  // function addKey(item, idx){
-  //   item.rowKey = item.uuid || item.id || idx;
-  //   item.key = item.key || item.rowKey;
-  // }
-
-  for (let [idx, team] of teams.entries()) {
-    team.rowKey = team.uid || team.id || idx;
-    team.key = team.key || team.rowKey;
-  }
-
-  const [teamsList, setTeamsList] = useState(teams)
+  const teamsListLastIndex = teamsList.length - 1;
 
   const thLeft = {
     style: { textAlign: 'left' }
@@ -34,13 +31,15 @@ export default function App() {
   }
 
   const moveBtnStyle = {
-    width: 'calc(100% - 10px)',
-    margin: 5,
-    padding: '5px 0',
-    border: '1px solid #c0c0c0',
+    // width: 'calc(100% - 10px)',
+    width: '100%',
+    margin: 0,
+    padding: 0,
+    border: 'none',
     borderRadius: 0,
-    background: '#f0f0f0',
-    cursor: 'pointer'
+    background: 'transparent',
+    cursor: 'pointer',
+    fontSize: '1.2rem'
   }
 
   function moveUp(rowData, rowIndex) {
@@ -58,7 +57,7 @@ export default function App() {
   }
 
   function moveDown(rowData, rowIndex) {
-    if (rowIndex === teamsList.length - 1) {
+    if (rowIndex === teamsListLastIndex) {
       console.log(`Cannot move last item down.`);
       return false;
     }
@@ -73,26 +72,56 @@ export default function App() {
 
   const colConfig = [
     {
-      key: null,
+      // key: null,   // the 'key' property can be omitted altogether
       header: 'Order',
-      cell: (rowData, i) => {
+      render: (rowData, i) => {
+        // TODO: move button styling to stylesheet
+        const disabledStyle = {
+          opacity: 0.5,
+          cursor: 'not-allowed'
+        }
+        const upBtnStyle = {
+          ...moveBtnStyle,
+          ...(i === 0 ? disabledStyle : {})
+        }
+        const dnBtnStyle = {
+          ...moveBtnStyle,
+          ...(i === teamsListLastIndex ? disabledStyle : {})
+        }
         return (
           <div style={{
             background: 'inherit',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'space-around'
+            justifyContent: 'space-around',
+            gap: 2
           }}>
-            <button className={'move-up'} onClick={() => moveUp(rowData, i)} style={moveBtnStyle}>+</button>
-            <button className={'move-down'} onClick={() => moveDown(rowData, i)} style={moveBtnStyle}>-</button>
+            <button
+              className={'move-up'}
+              onClick={() => moveUp(rowData, i)}
+              style={upBtnStyle}
+              disabled={i === 0}
+            >🔼</button>
+            <button
+              className={'move-down'}
+              onClick={() => moveDown(rowData, i)}
+              style={dnBtnStyle}
+              disabled={i === teamsListLastIndex}
+            >🔽</button>
           </div>
         )
       },
-      th: tdCenter,
+      th: {
+        ...tdCenter,
+        style: {
+          width: 'auto'
+        }
+      },
       td: {
         style: {
-          padding: 0,
+          padding: '8px',
+          width: 'auto'
         }
       }
     },
@@ -156,8 +185,10 @@ export default function App() {
       },
       tr: (rowData, rowIndex) => {
         return {
-          className: `row-${rowIndex}`,
-          'data-id': rowData.id
+          className: `row-${rowIndex + 1}`,
+          'data-index': rowIndex,
+          'data-id': rowData.id,
+          'data-uid': rowData.uid,
         }
       },
       td: {}
@@ -212,10 +243,21 @@ export default function App() {
   return (
     <div className="App" style={outerStyle}>
       <div style={{ ...wrapperStyle, borderLeft: 'none', borderTop: 'none' }}>
-        <Table header={TableHeader} footer={false} data={teamsList} columns={colConfig} config={tableConfig}/>
+        <Table
+          header={TableHeader}
+          footer={false}
+          data={teamsList}
+          columns={colConfig}
+          config={tableConfig}
+        />
       </div>
       <div style={{ ...wrapperStyle, overflowY: 'hidden', border: 'none' }}>
-        <textarea style={{ width: '100%', maxHeight: '100%', border: borderStyle }} rows={80} value={JSON.stringify(teamsList, null, 2)}/>
+        <textarea
+          style={{ width: '100%', maxHeight: '100%', border: borderStyle }}
+          rows={80}
+          value={JSON.stringify(teamsList, null, 2)}
+          readOnly
+        />
       </div>
     </div>
   );
