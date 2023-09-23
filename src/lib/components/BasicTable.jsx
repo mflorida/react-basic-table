@@ -62,7 +62,7 @@ export default function BasicTable(props) {
           <tr {...funcOr(thead.tr)}>
             {columns.map((col, colIndex) => (
               <th key={colIndex} {...mergeProps(funcOr(thead.th), funcOr(col.th))}>
-                {funcOr(col.header || col.th?.render || col.th?.children)}
+                {funcOr(col.header || col.title || col.label || col.th?.render || col.th?.children)}
               </th>
             ))}
           </tr>
@@ -73,7 +73,7 @@ export default function BasicTable(props) {
 
         <tbody {...tbody.__}>
         {data.map((rowData, rowIndex) => (
-          <tr key={rowIndex} {...funcOr(tbody.tr, [rowData, rowIndex])}>
+          <tr key={rowData.rowKey || rowData.id || rowIndex} {...funcOr(tbody.tr, [rowData, rowIndex])}>
             {columns.map((col, colIndex) => {
               const cellRender = firstDefined(col.render, col.cell, col.td?.render, col.td?.children);
               const cellProps = mergeProps(funcOr(tbody.td, [rowData, rowIndex]), funcOr(col.td, [rowData, rowIndex]));
