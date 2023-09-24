@@ -6,7 +6,7 @@
 export function resolveClassNames(/* classNames1, classNames2, etc */) {
   let classes = [];
   for (let arg of arguments) {
-    classes.push([].concat(arg).join(' ').trim());
+    classes.push([].concat(arg).join(' '));
   }
   return [...(new Set(classes.join(' ').split(/\s+/)))].join(' ');
 }
@@ -35,7 +35,7 @@ export function mergeProps(a, b, etc) {
       }
 
       if (!isPlainObject(propsArg)) {
-        console.warn(`'propsArg' must be an Object`, propsArg);
+        console.warn(`'props' must be an Object`, propsArg);
         continue;
       }
 
@@ -49,8 +49,8 @@ export function mergeProps(a, b, etc) {
 
       // pile the styles
       if (propsArg.style) {
-        // remove style properties with `null` value
         for (let [styleProp, styleValue] of Object.entries(propsArg.style)) {
+          // remove style properties with `null` value
           if (styleValue === null) {
             delete propsArg.style[styleProp]
           }
@@ -77,8 +77,17 @@ export function mergeProps(a, b, etc) {
 
 }
 
+const objectString = (o) => Object.prototype.toString.call(o);
+
+const oObject = objectString({});
+const oMap = objectString(new Map());
+
 export function isPlainObject(it){
-  return Object.prototype.toString.call(it) === '[object Object]'
+  return objectString(it) === oObject;
+}
+
+export function isMap(it) {
+  return objectString(it) === oMap;
 }
 
 export function isFunction(it) {
