@@ -1,24 +1,33 @@
 import React from 'react';
-
 import {
-  resolveClassNames,
-  mergeProps,
-  funcOr,
   firstDefined,
-  isFunction
+  funcOr,
+  isFunction,
+  isMap,
+  mergeProps,
+  resolveClassNames,
 } from '../utils';
 
-
 export default function BasicTable(props) {
-
   const {
     data = [],
-    columns = [],
     config = {},
     header,
     footer
   } = props;
 
+  let columns = props.columns;
+
+  // Allow use of Map for column config
+  if (isMap(columns)) {
+    columns = Array.from(columns).map(([key, column]) => {
+      // Normalize column config properties
+      column.key = column.key || key;
+      column.label = column.label || key;
+      column.header = column.header || key;
+      return column;
+    });
+  }
 
   const tableConfig = {
     __: {},
@@ -40,7 +49,6 @@ export default function BasicTable(props) {
     }
   }
 
-
   // config.__ = firstDefined(config.__, {});
   // config.__.className = resolveClassNames([config.__.className, 'basic-table']);
 
@@ -54,9 +62,7 @@ export default function BasicTable(props) {
 
   return (
     <div className={'basic-table-wrapper'}>
-
       <table {...funcOr(tableConfig.__)}>
-
         {header === true ? (
           <thead {...funcOr(thead.__)}>
           <tr {...funcOr(thead.tr)}>
@@ -106,9 +112,7 @@ export default function BasicTable(props) {
         ) : (
           isFunction(footer) ? footer({tfoot, columns}) : (footer || null)
         )}
-
       </table>
-
     </div>
   )
 }
