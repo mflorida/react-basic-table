@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { isFunction, mergeProps } from './lib/utils';
+import { devmode, isFunction, mergeProps } from './lib/utils';
 import Table from './lib/components/BasicTable';
 
 import './App.css';
@@ -47,7 +47,7 @@ function moveDown(listData, rowIndex) {
   return listData;
 }
 
-const moveBtnStyle = {
+const moveBtnStyle = () => ({
   // width: 'calc(100% - 10px)',
   width: '100%',
   margin: 0,
@@ -57,7 +57,7 @@ const moveBtnStyle = {
   background: 'transparent',
   cursor: 'pointer',
   fontSize: '1.2rem'
-};
+});
 
 function MoveButtons({ teamsList, setTeamsList, index }) {
   // TODO: move button styling to stylesheet
@@ -66,11 +66,11 @@ function MoveButtons({ teamsList, setTeamsList, index }) {
     cursor: 'not-allowed'
   }
   const upBtnStyle = {
-    ...moveBtnStyle,
+    ...moveBtnStyle(),
     ...(index === 0 ? disabledStyle : {})
   }
   const dnBtnStyle = {
-    ...moveBtnStyle,
+    ...moveBtnStyle(),
     ...(index === teamsListLastIndex ? disabledStyle : {})
   }
   return (
@@ -98,13 +98,13 @@ function MoveButtons({ teamsList, setTeamsList, index }) {
   )
 }
 
-const thLeft = {
+const thLeft = () => ({
   style: { textAlign: 'left' }
-}
+});
 
-const tdCenter = {
+const tdCenter = () => ({
   className: 'text-center',
-}
+});
 
 // const colMap = new Map();
 
@@ -114,6 +114,22 @@ const tdCenter = {
 // const SPORT = 'Sport';
 // const AGE_GROUP = 'Age Group';
 // const PLAYERS = 'Players';
+
+function TableHeader({thead, columns}) {
+  return (
+    <thead {...thead.__}>
+    <tr {...thead.tr}>
+      {columns.map((col, i) => {
+        const header = isFunction(col.header) ? col.header() : col.header;
+        const thProps = mergeProps(thead.th, col.th);
+        return (
+          <th key={`col-${i}`} {...thProps}>{header}</th>
+        )
+      })}
+    </tr>
+    </thead>
+  )
+}
 
 export default function App() {
   const [teamsList, setTeamsList] = useState(teams);
@@ -125,7 +141,7 @@ export default function App() {
   //     <MoveButtons index={i} {...{teamsList, setTeamsList}} />
   //   ),
   //   th: {
-  //     ...tdCenter,
+  //     ...tdCenter(),
   //   },
   //   td: {
   //     style: {
@@ -136,22 +152,22 @@ export default function App() {
   //
   // colMap.set(TEAM_NAME, {
   //   render: (rowData) => rowData.fullTeamName,
-  //   th: thLeft
+  //   th: thLeft()
   // });
   //
   // colMap.set(UNIFORM_TEAM_NAME, {
   //   render: (rowData) => <b>{rowData.nameDisplayedOnUniform}</b>,
-  //   th: thLeft
+  //   th: thLeft()
   // });
   //
   // colMap.set(SPORT, {
   //   render: (rowData) => rowData.sportDescription,
-  //   td: tdCenter
+  //   td: tdCenter()
   // })
   //
   // colMap.set(AGE_GROUP, {
   //   render: (rowData) => rowData['ageGroupDescription'],
-  //   td: tdCenter
+  //   td: tdCenter()
   // });
   //
   // colMap.set(PLAYERS, {
@@ -160,7 +176,7 @@ export default function App() {
   //       {rowData.teamMembers.length}
   //     </a>
   //   ),
-  //   td: tdCenter
+  //   td: tdCenter()
   // });
 
   // 'Order' column
@@ -170,9 +186,7 @@ export default function App() {
     render: (rowData, i) => (
       <MoveButtons index={i} {...{teamsList, setTeamsList }} />
     ),
-    th: {
-      ...tdCenter,
-    },
+    th: tdCenter(),
     td: {
       style: {
         padding: '8px'
@@ -187,24 +201,24 @@ export default function App() {
       field: 'fullTeamName',  // allow use of 'field' for data object key
       header: () => 'Team Name',
       cell: (rowData) => rowData.fullTeamName,
-      th: thLeft
+      th: thLeft()
     },
     {
       key: 'nameDisplayedOnUniform',
       header: 'Team Name on Uniform',
       cell: (rowData) => <b>{rowData.nameDisplayedOnUniform}</b>,
-      th: thLeft
+      th: thLeft()
     },
     {
       key: 'sportDescription',
       header: <span>Sport</span>,
-      td: tdCenter,
+      td: tdCenter(),
     },
     {
       key: 'ageGroupDescription',
       header: () => 'Age Group',
       cell: (rowData) => rowData['ageGroupDescription'],
-      td: tdCenter
+      td: tdCenter()
     },
     {
       key: null,
@@ -214,7 +228,7 @@ export default function App() {
           {rowData.teamMembers.length}
         </a>
       ),
-      td: tdCenter
+      td: tdCenter()
     },
   ]
 
@@ -268,7 +282,8 @@ export default function App() {
 
   const wrapperStyle = {
     width: 960,
-    height: 'calc((100vh - 50%) - 20px)',
+    height: '100%',
+    // height: 'calc((100vh - 50%) - 20px)',
     margin: 'auto',
     overflowY: 'scroll',
     boxShadow: 'inset 0 -12px 12px -12px rgba(0, 0, 0, 0.25)',
@@ -277,29 +292,47 @@ export default function App() {
 
   const outerStyle = {
     height: '100vh',
+    padding: '0.5rem 0',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    gap: '0.5rem'
   }
 
-  function TableHeader({thead, columns}) {
-    return (
-      <thead {...thead.__}>
-      <tr {...thead.tr}>
-        {columns.map((col, i) => {
-          const header = isFunction(col.header) ? col.header() : col.header;
-          const thProps = mergeProps(thead.th, col.th);
-          return (
-            <th key={`col-${i}`} {...thProps}>{header}</th>
-          )
-        })}
-      </tr>
-      </thead>
-    )
+  function toggleDevmode(e) {
+    let [, ...parts] = window.location.hash.split(/devmode|debug|#/g);
+    // if no parts, just add '#devmode'
+    if (!parts.length) {
+      window.location.hash = '#devmode';
+      window.location.reload();
+      return;
+    }
+    let cleanHash = parts.filter(Boolean).join('#');
+    const end = cleanHash.endsWith('/') ? '/' : '';
+    parts = cleanHash.split('/#').filter(Boolean);
+    cleanHash = parts.join('/#');
+    parts = cleanHash.split('#').filter(Boolean);
+    cleanHash = parts.join('#').replace(/[/#]+$/, end);
+    if (devmode()) {
+      window.location.hash = cleanHash;
+    } else {
+      window.location.hash = cleanHash + '#devmode';
+    }
+    window.location.reload();
   }
 
   return (
     <div className="App" style={outerStyle}>
+      <div id={'debug'} style={{ width: 960, margin: 'auto' }}>
+        <div id={'devmode'} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <button type={'button'} style={{ width: 130, fontSize: 14 }} onClick={toggleDevmode}>
+            {devmode() ? 'disable devmode' : 'enable devmode'}
+          </button>
+          <small style={{ color: '#808080', fontSize: 12 }}>
+            (enabling 'devmode' allows extra messages to be written to the console)
+          </small>
+        </div>
+      </div>
       <div style={{ ...wrapperStyle, borderLeft: 'none', borderTop: 'none' }}>
         <Table
           header={TableHeader}
@@ -309,14 +342,16 @@ export default function App() {
           config={tableConfig}
         />
       </div>
-      <div style={{ ...wrapperStyle, overflowY: 'hidden', border: 'none' }}>
+      {devmode() && (
+        <div style={{ ...wrapperStyle, height: '25%', overflowY: 'hidden', border: 'none' }}>
         <textarea
           style={{ width: '100%', maxHeight: '100%', border: borderStyle }}
           rows={80}
           value={JSON.stringify(teamsList, null, 2)}
           readOnly
         />
-      </div>
+        </div>
+      )}
     </div>
   );
 }
