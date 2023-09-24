@@ -2,6 +2,17 @@
  * Utility functions
  */
 
+// log messages during development
+export function devmode(arg, ...more) {
+  // to enable, add 'devmode' or 'debug' to url hash
+  if (/devmode|debug/i.test(window.location.hash)) {
+    if (isFunction(arg)) console.log(arg());
+    console.log(arg, ...more);
+    return true;
+  }
+  return false;
+}
+
 // heavy-handed approach to merge classNames without duplicates
 export function resolveClassNames(/* classNames1, classNames2, etc */) {
   let classes = [];
@@ -97,7 +108,7 @@ export function isFunction(it) {
 let funcOrCount = 0;
 
 export function funcOr(it = null, args = []) {
-  console.log('funcOr', ++funcOrCount);
+  devmode('funcOr', ++funcOrCount);
   return (
     isFunction(it)
     ? it.apply(null, [].concat(args))
@@ -113,8 +124,8 @@ export function firstDefined(a, b, c, etc) {
   return undef;
 }
 
-export function firstString(a, b, c, etc) {
-  for (let arg of arguments) {
-    if (typeof arg == 'string') return arg
-  }
-}
+// export function firstString(a, b, c, etc) {
+//   for (let arg of arguments) {
+//     if (typeof arg == 'string') return arg
+//   }
+// }
