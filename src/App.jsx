@@ -59,7 +59,7 @@ const moveBtnStyle = () => ({
   fontSize: '1.2rem'
 });
 
-function MoveButtons({ teamsList, setTeamsList, index }) {
+function MoveButtons({ teamsList, setTeamsList, setMovedRow, index }) {
   // TODO: move button styling to stylesheet
   const disabledStyle = {
     opacity: 0.5,
@@ -84,13 +84,33 @@ function MoveButtons({ teamsList, setTeamsList, index }) {
     }}>
       <button
         className={'move-up'}
-        onClick={() => setTeamsList(moveUp([...teamsList], index))}
+        title={'Move Up'}
+        onClick={(e) => {
+          e.target.closest('tr').classList.add('hilite');
+          setTimeout(() => {
+            setTeamsList(moveUp([...teamsList], index));
+            // setTimeout(() => {
+            //   e.target.closest('tr').classList.remove('hilite');
+            // }, 200);
+            setMovedRow(index - 1);
+          }, 50);
+        }}
         style={upBtnStyle}
         disabled={index === 0}
       >🔼</button>
       <button
         className={'move-down'}
-        onClick={() => setTeamsList(moveDown([...teamsList], index))}
+        title={'Move Down'}
+        onClick={(e) => {
+          e.target.closest('tr').classList.add('hilite');
+          setTimeout(() => {
+            setTeamsList(moveDown([...teamsList], index));
+            // setTimeout(() => {
+            //   e.target.closest('tr').classList.remove('hilite');
+            // }, 200);
+            setMovedRow(index + 1);
+          }, 50);
+        }}
         style={dnBtnStyle}
         disabled={index === teamsListLastIndex}
       >🔽</button>
@@ -133,6 +153,7 @@ function TableHeader({thead, columns}) {
 
 export default function App() {
   const [teamsList, setTeamsList] = useState(teams);
+  const [movedRow, setMovedRow] = useState(null);
 
   // colMap.set(ORDER, {
   //   // key: null,   // the 'key' property can be omitted altogether
@@ -184,7 +205,7 @@ export default function App() {
     // key: null,   // the 'key' property can be omitted altogether
     header: 'Order',
     render: (rowData, i) => (
-      <MoveButtons index={i} {...{teamsList, setTeamsList }} />
+      <MoveButtons index={i} {...{teamsList, setTeamsList, setMovedRow}} />
     ),
     th: tdCenter(),
     td: {
@@ -260,7 +281,18 @@ export default function App() {
           className: `row-${rowIndex + 1}`,
           'data-index': rowIndex,
           'data-id': rowData.id,
-          'data-uid': rowData.uid,
+          // 'data-uid': rowData.uid,
+          ref: (tr) => {
+            if (tr && movedRow != null) {
+              if (+movedRow === +rowIndex) {
+                devmode('moved:', tr);
+                tr.classList.add('hilite');
+                setTimeout(() => {
+                  tr.classList.remove('hilite');
+                }, 200);
+              }
+            }
+          }
         }
       },
       td: {}
@@ -311,7 +343,7 @@ export default function App() {
           </small>
         </div>
       </div>
-      <div style={{ ...wrapperStyle, borderLeft: 'none', borderTop: 'none' }}>
+      <div style={{ ...wrapperStyle, borderLeft: 'none' }}>
         <Table
           header={TableHeader}
           footer={false}
