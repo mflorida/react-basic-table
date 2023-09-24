@@ -41,18 +41,18 @@ function BasicComponent(props) {
 }
 
 // <thead>
-export function Header({ children, ...props }) {
+export function Header({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'thead', className: 'basic-table-header' }} {...props}>
+    <BasicComponent as={{ tag: 'thead', className: 'basic-table-header' }} {..._props}>
       {children}
     </BasicComponent>
   )
 }
 
 // <thead><tr>
-export function HeaderRow({ children, ...props }) {
+export function HeaderRow({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tr', className: 'basic-table-header-row' }} {...props}>
+    <BasicComponent as={{ tag: 'tr', className: 'basic-table-header-row' }} {..._props}>
       {children}
     </BasicComponent>
   )
@@ -112,7 +112,7 @@ export function Footer({ children, ..._props }) {
 }
 
 // <tfoot><tr>
-export function FooterRow({ children, _props }) {
+export function FooterRow({ children, ..._props }) {
   return (
     <BasicComponent as={{ tag: 'tr', className: 'basic-table-footer-row' }} {..._props}>
       {children}
