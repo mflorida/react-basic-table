@@ -7,7 +7,7 @@ export function devmode(arg, ...more) {
   // to enable, add 'devmode' or 'debug' to url hash
   if (/devmode|debug/i.test(window.location.hash)) {
     if (isFunction(arg)) console.log(arg());
-    console.log(arg, ...more);
+    if (arg) console.log(arg, ...more);
     return true;
   }
   return false;
@@ -128,10 +128,10 @@ export function isFunction(it) {
   return typeof it == 'function'
 }
 
-let funcOrCount = 0;
+// let funcOrCount = 0;
 
 export function funcOr(it = null, args = []) {
-  devmode('funcOr', ++funcOrCount);
+  // devmode('funcOr', ++funcOrCount);
   return (
     isFunction(it)
     ? it.apply(null, [].concat(args))
