@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { devmode, isFunction, mergeProps } from './lib/utils';
+import { devmode, isFunction, mergeProps, toggleDevmode } from './lib/utils';
 import Table from './lib/components/BasicTable';
 
 import './App.css';
@@ -297,28 +297,6 @@ export default function App() {
     flexDirection: 'column',
     justifyContent: 'space-between',
     gap: '0.5rem'
-  }
-
-  function toggleDevmode(e) {
-    let [, ...parts] = window.location.hash.split(/devmode|debug|#/g);
-    // if no parts, just add '#devmode'
-    if (!parts.length) {
-      window.location.hash = '#devmode';
-      window.location.reload();
-      return;
-    }
-    let cleanHash = parts.filter(Boolean).join('#');
-    const end = cleanHash.endsWith('/') ? '/' : '';
-    parts = cleanHash.split('/#').filter(Boolean);
-    cleanHash = parts.join('/#');
-    parts = cleanHash.split('#').filter(Boolean);
-    cleanHash = parts.join('#').replace(/[/#]+$/, end);
-    if (devmode()) {
-      window.location.hash = cleanHash;
-    } else {
-      window.location.hash = cleanHash + '#devmode';
-    }
-    window.location.reload();
   }
 
   return (

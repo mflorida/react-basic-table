@@ -13,10 +13,33 @@ export function devmode(arg, ...more) {
   return false;
 }
 
+export function toggleDevmode(e) {
+  let [, ...parts] = window.location.hash.split(/devmode|debug|#/g);
+  // if no parts, just add '#devmode'
+  if (!parts.length) {
+    window.location.hash = '#devmode';
+    window.location.reload();
+    return;
+  }
+  let cleanHash = parts.filter(Boolean).join('#');
+  const end = cleanHash.endsWith('/') ? '/' : '';
+  parts = cleanHash.split('/#').filter(Boolean);
+  cleanHash = parts.join('/#');
+  parts = cleanHash.split('#').filter(Boolean);
+  cleanHash = parts.join('#').replace(/[/#]+$/, end);
+  if (devmode()) {
+    window.location.hash = cleanHash;
+  } else {
+    window.location.hash = cleanHash + '#devmode';
+  }
+  window.location.reload();
+}
+
 // heavy-handed approach to merge classNames without duplicates
 export function resolveClassNames(/* classNames1, classNames2, etc */) {
   let classes = [];
   for (let arg of arguments) {
+    if (!arg) continue;
     classes.push([].concat(arg).join(' '));
   }
   return [...(new Set(classes.join(' ').split(/\s+/)))].join(' ');
