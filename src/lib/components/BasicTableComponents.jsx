@@ -14,22 +14,22 @@ function BaseComponent(props) {
   const {
     as = null,
     tag = as,
-    config = {},
-    cfg = config,
+    cfg = {},
+    config = cfg,
     className = '',
     children,
     ..._props
   } = props;
 
-  cfg.tag = cfg.tag || tag;
-  cfg.className = resolveClassNames(cfg.className, className);
+  config.tag = config.tag || tag;
+  config.className = resolveClassNames(config.className, className);
 
   let Component = null;
 
-  if (cfg.tag) {
+  if (config.tag) {
     try {
-      Component = React.createElement(cfg.tag, {
-        className: cfg.className,
+      Component = React.createElement(config.tag, {
+        className: config.className,
         ..._props
       }, children);
     }
