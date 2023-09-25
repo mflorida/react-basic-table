@@ -4,7 +4,9 @@ import {
   firstDefined,
   funcOr,
   isFunction,
-  mergeProps, resolveClassNames,
+  isMap,
+  mergeProps,
+  resolveClassNames,
 } from '../utils';
 
 // Main component that's used to render everything.
@@ -147,16 +149,28 @@ Footer.Cell = FooterCell;
 
 // <table>
 export function Table(props) {
-  console.log(props);
+  devmode(props);
 
   const {
     data = [],
-    columns = [],
     config = {},
     header,
     footer,
     children = null
   } = props;
+
+  let columns = props.columns;
+
+  // Allow use of Map for column config
+  if (isMap(columns)) {
+    columns = Array.from(columns).map(([key, column]) => {
+      // Normalize column config properties
+      column.key = column.key || column.field || key;
+      column.label = column.label || key;
+      column.header = column.header || key;
+      return column;
+    });
+  }
 
   const tableConfig = {
     __: {},
@@ -188,7 +202,14 @@ export function Table(props) {
   tableConfig.__.className = ['basic-table', tableConfig.__.className].join(' ').trim();
   devmode(tableConfig)
 
-  const { thead, tbody, tfoot } = tableConfig;
+  const {
+    tr = {},
+    td = {},
+    th = {},
+    thead = {},
+    tbody = {},
+    tfoot = {}
+  } = tableConfig;
 
   return (
     <div className={'basic-table-wrapper'}>
@@ -201,9 +222,15 @@ export function Table(props) {
           <>
             {header === true ? (
               <Header {...funcOr(thead.__)}>
-                <Header.Row {...funcOr(thead.tr)}>
+                <Header.Row {...mergeProps(
+                  funcOr(thead.tr))
+                }>
                   {columns.map((col, colIndex) => (
-                    <Header.Cell key={colIndex} {...mergeProps(funcOr(thead.th), funcOr(col.th))}>
+                    <Header.Cell key={colIndex} {...mergeProps(
+                      funcOr(th),
+                      funcOr(thead.th),
+                      funcOr(col.th))
+                    }>
                       {funcOr(firstDefined(
                         col.header,
                         col.title,
@@ -225,8 +252,13 @@ export function Table(props) {
               {data.map((rowData, rowIndex) => {
                 const rowKey = String(rowData.rowKey || rowData.key || rowData.id || rowIndex);
                 return (
-                  <Body.Row data-key={rowKey} key={rowKey} {...funcOr(tbody.tr, [rowData, rowIndex])}>
+                  <Body.Row data-key={rowKey} key={rowKey} {...mergeProps(
+                    funcOr(tr, [rowData, rowIndex]),
+                    funcOr(tbody.tr, [rowData, rowIndex])
+                  )}>
                     {columns.map((col, colIndex) => {
+                      const colKey = firstDefined(col.key, col.field, null);
+                      devmode(colKey);
                       const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
                       const cellRender = firstDefined(
                         col.cell,
@@ -237,8 +269,9 @@ export function Table(props) {
                         null
                       );
                       const cellProps = mergeProps(
+                        funcOr(td, [rowData, rowIndex]),
                         funcOr(tbody.td, [rowData, rowIndex]),
-                        funcOr(col.td, [rowData, rowIndex])
+                        funcOr(col.td, [rowData, rowIndex]),
                       );
                       return cellRender != null ? (
                         <Body.Cell key={cellKey} {...cellProps}>
@@ -246,7 +279,7 @@ export function Table(props) {
                         </Body.Cell>
                       ) : (
                         <BodyCell key={cellKey} {...cellProps}>
-                          {col.key || col.field ? rowData[col.key || col.field] : null}
+                          {colKey ? rowData[colKey] : null}
                         </BodyCell>
                       )
                     })}
@@ -259,7 +292,11 @@ export function Table(props) {
               <Footer key={'tfoot'} {...funcOr(tfoot.__)}>
                 <Footer.Row {...funcOr(tfoot.tr)}>
                   {columns.map((col, colIndex) => (
-                    <Footer.Cell key={colIndex} {...mergeProps(funcOr(tfoot.td), funcOr(tfoot.th))}>
+                    <Footer.Cell key={colIndex} {...mergeProps(
+                      funcOr(td),
+                      funcOr(tfoot.td),
+                      funcOr(tfoot.th)
+                    )}>
                       {funcOr(col.footer)}
                     </Footer.Cell>
                   ))}
