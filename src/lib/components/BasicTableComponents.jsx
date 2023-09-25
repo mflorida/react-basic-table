@@ -211,81 +211,78 @@ export function Table(props) {
   } = tableConfig;
 
   return (
-    <div className={'basic-table-wrapper'}>
-      <table {...funcOr(tableConfig.__)}>
-        {children ? (
-          // render the children
-          // if using that pattern
-          children
-        ) : (
-          <>
-            {header === true ? (
-              <Header {...funcOr(thead.__)}>
-                <Header.Row {...mergeProps(
-                  funcOr(thead.tr))
-                }>
-                  {columns.map((col, colIndex) => (
-                    <Header.Cell key={colIndex} {...mergeProps(
-                      funcOr(th),
-                      funcOr(thead.th),
-                      funcOr(col.th))
-                    }>
-                      {funcOr(firstDefined(
-                        col.header,
-                        col.title,
-                        col.label,
-                        col.th?.cell,
-                        col.th?.render,
-                        col.th?.children,
-                        null
-                      ))}
-                    </Header.Cell>
-                  ))}
-                </Header.Row>
-              </Header>
-            ) : (
-              isFunction(header) ? header({thead, columns}) : (header || null)
-            )}
+    <table {...funcOr(tableConfig.__)}>
+      {children ? (
+        // render the children
+        // if using that pattern
+        children
+      ) : (
+        <>
+          {header === true ? (
+            <Header {...funcOr(thead.__)}>
+              <Header.Row {...funcOr(thead.tr)}>
+                {columns.map((col, colIndex) => (
+                  <Header.Cell key={colIndex} {...mergeProps(
+                    funcOr(th),
+                    funcOr(thead.th),
+                    funcOr(col.th))
+                  }>
+                    {funcOr(firstDefined(
+                      col.header,
+                      col.title,
+                      col.label,
+                      col.th?.cell,
+                      col.th?.render,
+                      col.th?.children,
+                      null
+                    ))}
+                  </Header.Cell>
+                ))}
+              </Header.Row>
+            </Header>
+          ) : (
+            isFunction(header) ? header({ thead, columns }) : (header || null)
+          )}
 
-            <Body {...tbody.__}>
-              {data.map((rowData, rowIndex) => {
-                const rowKey = String(rowData.rowKey || rowData.key || rowData.id || rowIndex);
-                return (
-                  <Body.Row data-key={rowKey} key={rowKey} {...mergeProps(
-                    funcOr(tr, [rowData, rowIndex]),
-                    funcOr(tbody.tr, [rowData, rowIndex])
-                  )}>
-                    {columns.map((col, colIndex) => {
-                      const colKey = firstDefined(col.key, col.field, null);
-                      devmode(colKey);
-                      const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
-                      const cellRender = firstDefined(
-                        col.cell,
-                        col.render,
-                        col.td?.cell,
-                        col.td?.render,
-                        col.td?.children,
-                        null
-                      );
-                      const cellProps = mergeProps(
-                        funcOr(td, [rowData, rowIndex]),
-                        funcOr(tbody.td, [rowData, rowIndex]),
-                        funcOr(col.td, [rowData, rowIndex]),
-                      );
-                      return cellRender != null ? (
-                        <Body.Cell key={cellKey} {...cellProps}>
-                          {funcOr(cellRender, [rowData, rowIndex])}
-                        </Body.Cell>
-                      ) : (
-                        <BodyCell key={cellKey} {...cellProps}>
-                          {colKey ? rowData[colKey] : null}
-                        </BodyCell>
-                      )
-                    })}
-                  </Body.Row>
-                )
-              })}
-            </Body>
+          <Body {...tbody.__}>
+            {data.map((rowData, rowIndex) => {
+              const rowKey = String(rowData.rowKey || rowData.key || rowData.id || rowIndex);
+              return (
+                <Body.Row data-key={rowKey} key={rowKey} {...mergeProps(
+                  funcOr(tr, [rowData, rowIndex]),
+                  funcOr(tbody.tr, [rowData, rowIndex])
+                )}>
+                  {columns.map((col, colIndex) => {
+                    const colKey = firstDefined(col.key, col.field, null);
+                    devmode(colKey);
+                    const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
+                    const cellRender = firstDefined(
+                      col.cell,
+                      col.render,
+                      col.td?.cell,
+                      col.td?.render,
+                      col.td?.children,
+                      null
+                    );
+                    const cellProps = mergeProps(
+                      funcOr(td, [rowData, rowIndex]),
+                      funcOr(tbody.td, [rowData, rowIndex]),
+                      funcOr(col.td, [rowData, rowIndex]),
+                    );
+                    return cellRender != null ? (
+                      <Body.Cell key={cellKey} {...cellProps}>
+                        {funcOr(cellRender, [rowData, rowIndex])}
+                      </Body.Cell>
+                    ) : (
+                      <Body.Cell key={cellKey} {...cellProps}>
+                        {colKey ? rowData[colKey] : null}
+                      </Body.Cell>
+                    );
+                  })}
+                </Body.Row>
+              );
+            })}
+          </Body>
 
           {footer === true ? (
             <Footer key={'tfoot'} {...funcOr(tfoot.__)}>
