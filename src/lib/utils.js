@@ -128,10 +128,7 @@ export function isFunction(it) {
   return typeof it == 'function'
 }
 
-// let funcOrCount = 0;
-
 export function funcOr(it = null, args = []) {
-  // devmode('funcOr', ++funcOrCount);
   return (
     isFunction(it)
     ? it.apply(null, [].concat(args))
@@ -146,9 +143,3 @@ export function firstDefined(a, b, c, etc) {
   }
   return undef;
 }
-
-// export function firstString(a, b, c, etc) {
-//   for (let arg of arguments) {
-//     if (typeof arg == 'string') return arg
-//   }
-// }

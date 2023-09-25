@@ -48,7 +48,6 @@ function moveDown(listData, rowIndex) {
 }
 
 const moveBtnStyle = () => ({
-  // width: 'calc(100% - 10px)',
   width: '100%',
   margin: 0,
   padding: 0,
@@ -89,9 +88,7 @@ function MoveButtons({ teamsList, setTeamsList, setMovedRow, index }) {
           e.target.closest('tr').classList.add('hilite');
           setTimeout(() => {
             setTeamsList(moveUp([...teamsList], index));
-            // setTimeout(() => {
-            //   e.target.closest('tr').classList.remove('hilite');
-            // }, 200);
+            // 'hilite' class is removed after the list re-renders
             setMovedRow(index - 1);
           }, 50);
         }}
@@ -105,9 +102,7 @@ function MoveButtons({ teamsList, setTeamsList, setMovedRow, index }) {
           e.target.closest('tr').classList.add('hilite');
           setTimeout(() => {
             setTeamsList(moveDown([...teamsList], index));
-            // setTimeout(() => {
-            //   e.target.closest('tr').classList.remove('hilite');
-            // }, 200);
+            // 'hilite' class is removed after the list re-renders
             setMovedRow(index + 1);
           }, 50);
         }}
@@ -125,15 +120,6 @@ const thLeft = () => ({
 const tdCenter = () => ({
   className: 'text-center',
 });
-
-// const colMap = new Map();
-
-// const ORDER = 'Order';
-// const TEAM_NAME = 'Team Name';
-// const UNIFORM_TEAM_NAME = 'Team Name on Uniform';
-// const SPORT = 'Sport';
-// const AGE_GROUP = 'Age Group';
-// const PLAYERS = 'Players';
 
 function TableHeader({thead, columns}) {
   return (
@@ -154,51 +140,6 @@ function TableHeader({thead, columns}) {
 export default function App() {
   const [teamsList, setTeamsList] = useState(teams);
   const [movedRow, setMovedRow] = useState(null);
-
-  // colMap.set(ORDER, {
-  //   // key: null,   // the 'key' property can be omitted altogether
-  //   // header: 'Order',
-  //   render: (rowData, i) => (
-  //     <MoveButtons index={i} {...{teamsList, setTeamsList}} />
-  //   ),
-  //   th: {
-  //     ...tdCenter(),
-  //   },
-  //   td: {
-  //     style: {
-  //       padding: '8px'
-  //     }
-  //   }
-  // });
-  //
-  // colMap.set(TEAM_NAME, {
-  //   render: (rowData) => rowData.fullTeamName,
-  //   th: thLeft()
-  // });
-  //
-  // colMap.set(UNIFORM_TEAM_NAME, {
-  //   render: (rowData) => <b>{rowData.nameDisplayedOnUniform}</b>,
-  //   th: thLeft()
-  // });
-  //
-  // colMap.set(SPORT, {
-  //   render: (rowData) => rowData.sportDescription,
-  //   td: tdCenter()
-  // })
-  //
-  // colMap.set(AGE_GROUP, {
-  //   render: (rowData) => rowData['ageGroupDescription'],
-  //   td: tdCenter()
-  // });
-  //
-  // colMap.set(PLAYERS, {
-  //   render: (rowData) => (
-  //     <a href={`#/teams/${rowData.uid}/players`} onClick={(e) => showPlayers(e, rowData)}>
-  //       {rowData.teamMembers.length}
-  //     </a>
-  //   ),
-  //   td: tdCenter()
-  // });
 
   // 'Order' column
   const orderColumn = {
@@ -264,7 +205,6 @@ export default function App() {
     },
     thead: {
       __: {
-        // key: 'thead',
         className: 'sticky shadow'
       },
       tr: {},
@@ -273,7 +213,6 @@ export default function App() {
     },
     tbody: {
       __: {
-        // key: 'tbody',
         className: 'sticky'
       },
       tr: (rowData, rowIndex) => {
@@ -299,7 +238,6 @@ export default function App() {
     },
     tfoot: {
       __: {
-        // key: 'tfoot',
         className: 'sticky shadow',
         style: { height: 0 }
       },
@@ -315,7 +253,6 @@ export default function App() {
   const wrapperStyle = {
     width: 960,
     height: '100%',
-    // height: 'calc((100vh - 50%) - 20px)',
     margin: 'auto',
     overflowY: 'scroll',
     boxShadow: 'inset 0 -12px 12px -12px rgba(0, 0, 0, 0.25)',
