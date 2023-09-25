@@ -16,7 +16,7 @@ const teamsListLastIndex = teams.length - 1;
 
 function showPlayers(e, data) {
   e.preventDefault();
-  console.log(data.teamMembers)
+  console.log(data.teamMembers);
 }
 
 function moveUp(listData, rowIndex) {
@@ -30,7 +30,7 @@ function moveUp(listData, rowIndex) {
   const prevItem = listData[prevIndex];
   listData[prevIndex] = currItem;
   listData[rowIndex] = prevItem;
-  return listData
+  return listData;
 }
 
 function moveDown(listData, rowIndex) {
@@ -192,7 +192,7 @@ export default function App() {
       ),
       td: tdCenter()
     },
-  ]
+  ];
 
 
   // props for main <table> element
@@ -246,7 +246,7 @@ export default function App() {
         style: { padding: 0 }
       }
     }
-  }
+  };
 
   const borderStyle = '1px solid #c0c0c0';
 
@@ -257,7 +257,7 @@ export default function App() {
     overflowY: 'scroll',
     boxShadow: 'inset 0 -12px 12px -12px rgba(0, 0, 0, 0.25)',
     border: borderStyle
-  }
+  };
 
   const outerStyle = {
     height: '100vh',

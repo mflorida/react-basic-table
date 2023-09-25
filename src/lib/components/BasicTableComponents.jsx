@@ -32,13 +32,12 @@ function BaseComponent(props) {
         className: config.className,
         ..._props
       }, children);
-    }
-    catch (e) {
+    } catch (e) {
       console.warn(e);
     }
   }
 
-  return Component
+  return Component;
 }
 
 // <thead>
@@ -47,7 +46,7 @@ export function Header({ children, ..._props }) {
     <BaseComponent config={{ tag: 'thead', className: 'basic-thead' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 
 // <thead><tr>
@@ -56,7 +55,7 @@ export function HeaderRow({ children, ..._props }) {
     <BaseComponent config={{ tag: 'tr', className: 'basic-thead-row' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Header.Row = HeaderRow;
 
@@ -72,7 +71,7 @@ export function HeaderCell(props) {
     <BaseComponent config={{ tag, className: 'basic-thead-cell' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Header.Cell = HeaderCell;
 
@@ -82,7 +81,7 @@ export function Body({ children, ..._props }) {
     <BaseComponent config={{ tag: 'tbody', className: 'basic-tbody' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 
 // <tbody><tr>
@@ -91,7 +90,7 @@ export function BodyRow({ children, ..._props }) {
     <BaseComponent config={{ tag: 'tr', className: 'basic-tbody-row' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Body.Row = BodyRow;
 
@@ -107,7 +106,7 @@ export function BodyCell(props) {
     <BaseComponent config={{ tag, className: 'basic-tbody-cell' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Body.Cell = BodyCell;
 
@@ -117,7 +116,7 @@ export function Footer({ children, ..._props }) {
     <BaseComponent config={{ tag: 'tfoot', className: 'basic-tfoot' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 
 // <tfoot><tr>
@@ -126,7 +125,7 @@ export function FooterRow({ children, ..._props }) {
     <BaseComponent config={{ tag: 'tr', className: 'basic-tfoot-row' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Footer.Row = FooterRow;
 
@@ -142,7 +141,7 @@ export function FooterCell(props) {
     <BaseComponent config={{ tag, className: 'basic-tfoot-cell' }} {..._props}>
       {children}
     </BaseComponent>
-  )
+  );
 }
 Footer.Cell = FooterCell;
 
@@ -190,7 +189,7 @@ export function Table(props) {
       tr: {},
       td: {}
     }
-  }
+  };
 
   // config.__ = firstDefined(config.__, {});
   // config.__.className = resolveClassNames([config.__.className, 'basic-table']);
@@ -200,7 +199,7 @@ export function Table(props) {
   Object.assign(tableConfig, { __: { className: '' } }, config);
 
   tableConfig.__.className = ['basic-table', tableConfig.__.className].join(' ').trim();
-  devmode(tableConfig)
+  devmode(tableConfig);
 
   const {
     tr = {},
@@ -288,28 +287,27 @@ export function Table(props) {
               })}
             </Body>
 
-            {footer === true ? (
-              <Footer key={'tfoot'} {...funcOr(tfoot.__)}>
-                <Footer.Row {...funcOr(tfoot.tr)}>
-                  {columns.map((col, colIndex) => (
-                    <Footer.Cell key={colIndex} {...mergeProps(
-                      funcOr(td),
-                      funcOr(tfoot.td),
-                      funcOr(tfoot.th)
-                    )}>
-                      {funcOr(col.footer)}
-                    </Footer.Cell>
-                  ))}
-                </Footer.Row>
-              </Footer>
-            ) : (
-              isFunction(footer) ? footer({tfoot, columns}) : (footer || null)
-            )}
-          </>
-        )}
-      </table>
-    </div>
-  )
+          {footer === true ? (
+            <Footer key={'tfoot'} {...funcOr(tfoot.__)}>
+              <Footer.Row {...funcOr(tfoot.tr)}>
+                {columns.map((col, colIndex) => (
+                  <Footer.Cell key={colIndex} {...mergeProps(
+                    funcOr(td),
+                    funcOr(tfoot.td),
+                    funcOr(tfoot.th)
+                  )}>
+                    {funcOr(col.footer)}
+                  </Footer.Cell>
+                ))}
+              </Footer.Row>
+            </Footer>
+          ) : (
+            isFunction(footer) ? footer({ tfoot, columns }) : (footer || null)
+          )}
+        </>
+      )}
+    </table>
+  );
 }
 
 // Table.Header = Header;
@@ -334,6 +332,6 @@ export const BasicTable = {
   // FooterRow,
   // FooterCell
 
-}
+};
 
 export default BasicTable;

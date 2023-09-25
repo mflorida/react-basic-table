@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  devmode,
   firstDefined,
   funcOr,
   isFunction,
@@ -22,7 +23,7 @@ export default function BasicTable(props) {
   if (isMap(columns)) {
     columns = Array.from(columns).map(([key, column]) => {
       // Normalize column config properties
-      column.key = column.key || key;
+      column.key = column.key || column.field || key;
       column.label = column.label || key;
       column.header = column.header || key;
       return column;
@@ -91,6 +92,8 @@ export default function BasicTable(props) {
           return (
               <tr data-key={rowKey} key={rowKey} {...funcOr(tbody.tr, [rowData, rowIndex])}>
                 {columns.map((col, colIndex) => {
+                  const colKey = firstDefined(col.key, col.field, null);
+                  devmode(colKey);
                   const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
                   const cellRender = firstDefined(
                     col.cell,
@@ -110,7 +113,7 @@ export default function BasicTable(props) {
                     </td>
                   ) : (
                     <td key={cellKey} {...cellProps}>
-                      {col.key || col.field ? rowData[col.key || col.field] : null}
+                      {colKey ? rowData[colKey] : null}
                     </td>
                   );
                 })}

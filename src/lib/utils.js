@@ -86,14 +86,14 @@ export function mergeProps(a, b, etc) {
         for (let [styleProp, styleValue] of Object.entries(propsArg.style)) {
           // remove style properties with `null` value
           if (styleValue === null) {
-            delete propsArg.style[styleProp]
+            delete props.style[styleProp];
+            delete propsArg.style[styleProp];
           }
         }
         // add styles
         Object.assign(props.style, propsArg.style);
       }
-    }
-    catch(e) {
+    } catch (e) {
       console.warn('mergProps()', e);
     }
 
@@ -116,7 +116,7 @@ const objectString = (o) => Object.prototype.toString.call(o);
 const oObject = objectString({});
 const oMap = objectString(new Map());
 
-export function isPlainObject(it){
+export function isPlainObject(it) {
   return objectString(it) === oObject;
 }
 
@@ -125,21 +125,21 @@ export function isMap(it) {
 }
 
 export function isFunction(it) {
-  return typeof it == 'function'
+  return typeof it == 'function';
 }
 
 export function funcOr(it = null, args = []) {
   return (
     isFunction(it)
-    ? it.apply(null, [].concat(args))
-    : it
-  )
+      ? it.apply(null, [].concat(args))
+      : it
+  );
 }
 
 export function firstDefined(a, b, c, etc) {
   let undef;
   for (let arg of arguments) {
-    if (arg !== undef) return arg
+    if (arg !== undef) return arg;
   }
   return undef;
 }
