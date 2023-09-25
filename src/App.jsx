@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { isFunction, mergeProps } from './lib/utils';
+import { devmode, isFunction, mergeProps, toggleDevmode } from './lib/utils';
 import Table from './lib/components/BasicTable';
 
 import './App.css';
@@ -47,8 +47,7 @@ function moveDown(listData, rowIndex) {
   return listData;
 }
 
-const moveBtnStyle = {
-  // width: 'calc(100% - 10px)',
+const moveBtnStyle = () => ({
   width: '100%',
   margin: 0,
   padding: 0,
@@ -57,20 +56,20 @@ const moveBtnStyle = {
   background: 'transparent',
   cursor: 'pointer',
   fontSize: '1.2rem'
-};
+});
 
-function MoveButtons({ teamsList, setTeamsList, index }) {
+function MoveButtons({ teamsList, setTeamsList, setMovedRow, index }) {
   // TODO: move button styling to stylesheet
   const disabledStyle = {
     opacity: 0.5,
     cursor: 'not-allowed'
   }
   const upBtnStyle = {
-    ...moveBtnStyle,
+    ...moveBtnStyle(),
     ...(index === 0 ? disabledStyle : {})
   }
   const dnBtnStyle = {
-    ...moveBtnStyle,
+    ...moveBtnStyle(),
     ...(index === teamsListLastIndex ? disabledStyle : {})
   }
   return (
@@ -84,13 +83,29 @@ function MoveButtons({ teamsList, setTeamsList, index }) {
     }}>
       <button
         className={'move-up'}
-        onClick={() => setTeamsList(moveUp([...teamsList], index))}
+        title={'Move Up'}
+        onClick={(e) => {
+          e.target.closest('tr').classList.add('hilite');
+          setTimeout(() => {
+            setTeamsList(moveUp([...teamsList], index));
+            // 'hilite' class is removed after the list re-renders
+            setMovedRow(index - 1);
+          }, 50);
+        }}
         style={upBtnStyle}
         disabled={index === 0}
       >🔼</button>
       <button
         className={'move-down'}
-        onClick={() => setTeamsList(moveDown([...teamsList], index))}
+        title={'Move Down'}
+        onClick={(e) => {
+          e.target.closest('tr').classList.add('hilite');
+          setTimeout(() => {
+            setTeamsList(moveDown([...teamsList], index));
+            // 'hilite' class is removed after the list re-renders
+            setMovedRow(index + 1);
+          }, 50);
+        }}
         style={dnBtnStyle}
         disabled={index === teamsListLastIndex}
       >🔽</button>
@@ -98,81 +113,42 @@ function MoveButtons({ teamsList, setTeamsList, index }) {
   )
 }
 
-const thLeft = {
+const thLeft = () => ({
   style: { textAlign: 'left' }
-}
+});
 
-const tdCenter = {
+const tdCenter = () => ({
   className: 'text-center',
+});
+
+function TableHeader({thead, columns}) {
+  return (
+    <thead {...thead.__}>
+    <tr {...thead.tr}>
+      {columns.map((col, i) => {
+        const header = isFunction(col.header) ? col.header() : col.header;
+        const thProps = mergeProps(thead.th, col.th);
+        return (
+          <th key={`col-${i}`} {...thProps}>{header}</th>
+        )
+      })}
+    </tr>
+    </thead>
+  )
 }
-
-// const colMap = new Map();
-
-// const ORDER = 'Order';
-// const TEAM_NAME = 'Team Name';
-// const UNIFORM_TEAM_NAME = 'Team Name on Uniform';
-// const SPORT = 'Sport';
-// const AGE_GROUP = 'Age Group';
-// const PLAYERS = 'Players';
 
 export default function App() {
   const [teamsList, setTeamsList] = useState(teams);
-
-  // colMap.set(ORDER, {
-  //   // key: null,   // the 'key' property can be omitted altogether
-  //   // header: 'Order',
-  //   render: (rowData, i) => (
-  //     <MoveButtons index={i} {...{teamsList, setTeamsList}} />
-  //   ),
-  //   th: {
-  //     ...tdCenter,
-  //   },
-  //   td: {
-  //     style: {
-  //       padding: '8px'
-  //     }
-  //   }
-  // });
-  //
-  // colMap.set(TEAM_NAME, {
-  //   render: (rowData) => rowData.fullTeamName,
-  //   th: thLeft
-  // });
-  //
-  // colMap.set(UNIFORM_TEAM_NAME, {
-  //   render: (rowData) => <b>{rowData.nameDisplayedOnUniform}</b>,
-  //   th: thLeft
-  // });
-  //
-  // colMap.set(SPORT, {
-  //   render: (rowData) => rowData.sportDescription,
-  //   td: tdCenter
-  // })
-  //
-  // colMap.set(AGE_GROUP, {
-  //   render: (rowData) => rowData['ageGroupDescription'],
-  //   td: tdCenter
-  // });
-  //
-  // colMap.set(PLAYERS, {
-  //   render: (rowData) => (
-  //     <a href={`#/teams/${rowData.uid}/players`} onClick={(e) => showPlayers(e, rowData)}>
-  //       {rowData.teamMembers.length}
-  //     </a>
-  //   ),
-  //   td: tdCenter
-  // });
+  const [movedRow, setMovedRow] = useState(null);
 
   // 'Order' column
   const orderColumn = {
     // key: null,   // the 'key' property can be omitted altogether
     header: 'Order',
     render: (rowData, i) => (
-      <MoveButtons index={i} {...{teamsList, setTeamsList }} />
+      <MoveButtons index={i} {...{teamsList, setTeamsList, setMovedRow}} />
     ),
-    th: {
-      ...tdCenter,
-    },
+    th: tdCenter(),
     td: {
       style: {
         padding: '8px'
@@ -187,24 +163,24 @@ export default function App() {
       field: 'fullTeamName',  // allow use of 'field' for data object key
       header: () => 'Team Name',
       cell: (rowData) => rowData.fullTeamName,
-      th: thLeft
+      th: thLeft()
     },
     {
       key: 'nameDisplayedOnUniform',
       header: 'Team Name on Uniform',
       cell: (rowData) => <b>{rowData.nameDisplayedOnUniform}</b>,
-      th: thLeft
+      th: thLeft()
     },
     {
       key: 'sportDescription',
       header: <span>Sport</span>,
-      td: tdCenter,
+      td: tdCenter(),
     },
     {
       key: 'ageGroupDescription',
       header: () => 'Age Group',
       cell: (rowData) => rowData['ageGroupDescription'],
-      td: tdCenter
+      td: tdCenter()
     },
     {
       key: null,
@@ -214,7 +190,7 @@ export default function App() {
           {rowData.teamMembers.length}
         </a>
       ),
-      td: tdCenter
+      td: tdCenter()
     },
   ]
 
@@ -229,7 +205,6 @@ export default function App() {
     },
     thead: {
       __: {
-        // key: 'thead',
         className: 'sticky shadow'
       },
       tr: {},
@@ -238,7 +213,6 @@ export default function App() {
     },
     tbody: {
       __: {
-        // key: 'tbody',
         className: 'sticky'
       },
       tr: (rowData, rowIndex) => {
@@ -246,14 +220,24 @@ export default function App() {
           className: `row-${rowIndex + 1}`,
           'data-index': rowIndex,
           'data-id': rowData.id,
-          'data-uid': rowData.uid,
+          // 'data-uid': rowData.uid,
+          ref: (tr) => {
+            if (tr && movedRow != null) {
+              if (+movedRow === +rowIndex) {
+                devmode('moved:', tr);
+                tr.classList.add('hilite');
+                setTimeout(() => {
+                  tr.classList.remove('hilite');
+                }, 200);
+              }
+            }
+          }
         }
       },
       td: {}
     },
     tfoot: {
       __: {
-        // key: 'tfoot',
         className: 'sticky shadow',
         style: { height: 0 }
       },
@@ -268,7 +252,7 @@ export default function App() {
 
   const wrapperStyle = {
     width: 960,
-    height: 'calc((100vh - 50%) - 20px)',
+    height: '100%',
     margin: 'auto',
     overflowY: 'scroll',
     boxShadow: 'inset 0 -12px 12px -12px rgba(0, 0, 0, 0.25)',
@@ -277,30 +261,26 @@ export default function App() {
 
   const outerStyle = {
     height: '100vh',
+    padding: '0.5rem 0',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
-  }
-
-  function TableHeader({thead, columns}) {
-    return (
-      <thead {...thead.__}>
-      <tr {...thead.tr}>
-        {columns.map((col, i) => {
-          const header = isFunction(col.header) ? col.header() : col.header;
-          const thProps = mergeProps(thead.th, col.th);
-          return (
-            <th key={`col-${i}`} {...thProps}>{header}</th>
-          )
-        })}
-      </tr>
-      </thead>
-    )
+    justifyContent: 'space-between',
+    gap: '0.5rem'
   }
 
   return (
     <div className="App" style={outerStyle}>
-      <div style={{ ...wrapperStyle, borderLeft: 'none', borderTop: 'none' }}>
+      <div id={'debug'} style={{ width: 960, margin: 'auto' }}>
+        <div id={'devmode'} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <button type={'button'} style={{ width: 130, fontSize: 14 }} onClick={toggleDevmode}>
+            {devmode() ? 'disable devmode' : 'enable devmode'}
+          </button>
+          <small style={{ color: '#808080', fontSize: 12 }}>
+            (enabling 'devmode' allows extra messages to be written to the console)
+          </small>
+        </div>
+      </div>
+      <div style={{ ...wrapperStyle, borderLeft: 'none' }}>
         <Table
           header={TableHeader}
           footer={false}
@@ -309,14 +289,16 @@ export default function App() {
           config={tableConfig}
         />
       </div>
-      <div style={{ ...wrapperStyle, overflowY: 'hidden', border: 'none' }}>
+      {devmode() && (
+        <div style={{ ...wrapperStyle, height: '25%', overflowY: 'hidden', border: 'none' }}>
         <textarea
           style={{ width: '100%', maxHeight: '100%', border: borderStyle }}
           rows={80}
           value={JSON.stringify(teamsList, null, 2)}
           readOnly
         />
-      </div>
+        </div>
+      )}
     </div>
   );
 }

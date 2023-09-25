@@ -14,13 +14,27 @@ table.basic-table {
     --lt-gray-1px-border: 1px solid var(--lt-gray-border-color);
     border-collapse: separate;
     border-spacing: 1px;
-    background: var(--lt-gray-border-color);
+    background-color: var(--lt-gray-border-color);
+}
+
+table.basic-table tr {
+    background-color: #fff;
+    transition-property: background-color;
+    transition-timing-function: ease-in;
+    transition-duration: 400ms;
+    transition-delay: 0ms;
+}
+
+table.basic-table tr.hilite {
+    background-color: rgb(255, 255, 160);
+    transition-duration: 0s;
+    transition-delay: 0s;
 }
 
 table.basic-table th,
 table.basic-table td {
     padding: 12px 16px;
-    background: #fff;
+    background-color: transparent;
     /*border: 1px solid var(--lt-gray-border-color);*/
 }
 
@@ -34,7 +48,7 @@ table.basic-table thead tr {
 }
 
 table.basic-table thead th {
-    background: #f0f0f0;
+    background-color: #f0f0f0;
 }
 
 
@@ -92,12 +106,12 @@ table.basic-table tfoot.shadow {
 
 table.basic-table thead.shadow th {
     padding-top: 14px;
-    background: #f0f0f0;
+    background-color: #f0f0f0;
     /*border: var(--lt-gray-1px-border);*/
     /*border-top: 1px solid transparent;*/
     /*border-bottom: none;*/
     box-shadow:
-            inset 0 1px 0 0 var(--lt-gray-border-color),   /* simulates top border */
+            /*inset 0 1px 0 0 var(--lt-gray-border-color),   !* simulates top border *!*/
             inset 0 -1px 0 0 var(--lt-gray-border-color), /* simulates bottom border */
             /*inset -1px 0 0 0 var(--border-shadow-color),*/
             /*inset 1px 0 0 0 var(--border-shadow-color)*/
@@ -113,10 +127,10 @@ table.basic-table thead.shadow th {
 
 table.basic-table tfoot.shadow td {
     /*padding-top: 14px;*/
-    background: #f0f0f0;
+    background-color: #f0f0f0;
     /*border-bottom: none;*/
     box-shadow:
-            inset 0 -2px 0 0 var(--lt-gray-border-color),
+            /*inset 0 -2px 0 0 var(--lt-gray-border-color),*/
             0 -1px 0 0 var(--border-shadow-color),
             0 -2px 0 0 var(--border-shadow-color),
             0 -3px 0 0 var(--border-shadow-color)

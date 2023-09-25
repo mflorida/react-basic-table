@@ -1,33 +1,35 @@
 import React from 'react';
-
 import {
-  mergeProps,
-  funcOr,
+  devmode,
   firstDefined,
-  isFunction
+  funcOr,
+  isFunction,
+  isMap,
+  mergeProps,
+  resolveClassNames,
 } from '../utils';
 
 // Main component that's used to render everything.
-// Using this helps cut down on boilerplate.
-function BasicComponent(props) {
-
+function BaseComponent(props) {
   const {
-    as = {},
+    as = null,
+    tag = as,
+    config = {},
+    cfg = config,
     className = '',
     children,
-    cfg,
     ..._props
   } = props;
 
-  as.tag = as.tag || null;
-  as.className = [as.className || '', className].join(' ').trim();
+  cfg.tag = cfg.tag || tag;
+  cfg.className = resolveClassNames(cfg.className, className);
 
   let Component = null;
 
-  if (as.tag) {
+  if (cfg.tag) {
     try {
-      Component = React.createElement(as.tag, {
-        className: as.className,
+      Component = React.createElement(cfg.tag, {
+        className: cfg.className,
         ..._props
       }, children);
     }
@@ -37,24 +39,23 @@ function BasicComponent(props) {
   }
 
   return Component
-
 }
 
 // <thead>
 export function Header({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'thead', className: 'basic-table-header' }} {..._props}>
+    <BaseComponent config={{ tag: 'thead', className: 'basic-thead' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 
 // <thead><tr>
 export function HeaderRow({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tr', className: 'basic-table-header-row' }} {..._props}>
+    <BaseComponent config={{ tag: 'tr', className: 'basic-thead-row' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 Header.Row = HeaderRow;
@@ -63,41 +64,49 @@ Header.Row = HeaderRow;
 export function HeaderCell(props) {
   const {
     as = 'th',
+    tag = as,
     children,
     ..._props
   } = props;
   return (
-    <BasicComponent as={{ tag: as, className: 'basic-table-header-cell' }} {..._props}>
+    <BaseComponent config={{ tag, className: 'basic-thead-cell' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
+Header.Cell = HeaderCell;
 
 // <tbody>
 export function Body({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tbody', className: 'basic-table-body' }} {..._props}>
+    <BaseComponent config={{ tag: 'tbody', className: 'basic-tbody' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 
 // <tbody><tr>
 export function BodyRow({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tr', className: 'basic-table-body-row' }} {..._props}>
+    <BaseComponent config={{ tag: 'tr', className: 'basic-tbody-row' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 Body.Row = BodyRow;
 
 // <tbody><tr><td>
-export function BodyCell({ children, ..._props }) {
+export function BodyCell(props) {
+  const {
+    as = 'td',
+    tag = as,
+    children,
+    ..._props
+  } = props;
   return (
-    <BasicComponent as={{ tag: 'td', className: 'basic-table-body-cell' }} {..._props}>
+    <BaseComponent config={{ tag, className: 'basic-tbody-cell' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 Body.Cell = BodyCell;
@@ -105,18 +114,18 @@ Body.Cell = BodyCell;
 // <tfoot>
 export function Footer({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tfoot', className: 'basic-table-footer' }} {..._props}>
+    <BaseComponent config={{ tag: 'tfoot', className: 'basic-tfoot' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 
 // <tfoot><tr>
 export function FooterRow({ children, ..._props }) {
   return (
-    <BasicComponent as={{ tag: 'tr', className: 'basic-table-footer-row' }} {..._props}>
+    <BaseComponent config={{ tag: 'tr', className: 'basic-tfoot-row' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 Footer.Row = FooterRow;
@@ -125,13 +134,14 @@ Footer.Row = FooterRow;
 export function FooterCell(props) {
   const {
     as = 'th',
+    tag = as,
     children,
     ..._props
   } = props;
   return (
-    <BasicComponent as={{ tag: as, className: 'basic-table-footer-cell' }} {..._props}>
+    <BaseComponent config={{ tag, className: 'basic-tfoot-cell' }} {..._props}>
       {children}
-    </BasicComponent>
+    </BaseComponent>
   )
 }
 Footer.Cell = FooterCell;
@@ -139,18 +149,28 @@ Footer.Cell = FooterCell;
 
 // <table>
 export function Table(props) {
-
-  console.log(props);
+  devmode(props);
 
   const {
     data = [],
-    columns = [],
     config = {},
     header,
     footer,
     children = null
   } = props;
 
+  let columns = props.columns;
+
+  // Allow use of Map for column config
+  if (isMap(columns)) {
+    columns = Array.from(columns).map(([key, column]) => {
+      // Normalize column config properties
+      column.key = column.key || column.field || key;
+      column.label = column.label || key;
+      column.header = column.header || key;
+      return column;
+    });
+  }
 
   const tableConfig = {
     __: {},
@@ -172,7 +192,6 @@ export function Table(props) {
     }
   }
 
-
   // config.__ = firstDefined(config.__, {});
   // config.__.className = resolveClassNames([config.__.className, 'basic-table']);
 
@@ -181,104 +200,139 @@ export function Table(props) {
   Object.assign(tableConfig, { __: { className: '' } }, config);
 
   tableConfig.__.className = ['basic-table', tableConfig.__.className].join(' ').trim();
+  devmode(tableConfig)
 
-  const { thead, tbody, tfoot } = tableConfig;
-
-  console.log(tableConfig);
+  const {
+    tr = {},
+    td = {},
+    th = {},
+    thead = {},
+    tbody = {},
+    tfoot = {}
+  } = tableConfig;
 
   return (
     <div className={'basic-table-wrapper'}>
-
       <table {...funcOr(tableConfig.__)}>
-
         {children ? (
           // render the children
           // if using that pattern
           children
-
         ) : (
           <>
             {header === true ? (
-              <Header key={'thead'} {...funcOr(thead.__)}>
-                <HeaderRow {...funcOr(thead.tr)}>
+              <Header {...funcOr(thead.__)}>
+                <Header.Row {...mergeProps(
+                  funcOr(thead.tr))
+                }>
                   {columns.map((col, colIndex) => (
-                    <HeaderCell key={colIndex} {...mergeProps(funcOr(thead.th), funcOr(col.th))}>
-                      {funcOr(col.header || col.th?.render || col.th?.children)}
-                    </HeaderCell>
+                    <Header.Cell key={colIndex} {...mergeProps(
+                      funcOr(th),
+                      funcOr(thead.th),
+                      funcOr(col.th))
+                    }>
+                      {funcOr(firstDefined(
+                        col.header,
+                        col.title,
+                        col.label,
+                        col.th?.cell,
+                        col.th?.render,
+                        col.th?.children,
+                        null
+                      ))}
+                    </Header.Cell>
                   ))}
-                </HeaderRow>
+                </Header.Row>
               </Header>
             ) : (
               isFunction(header) ? header({thead, columns}) : (header || null)
             )}
 
-            <Body key={'tbody'} {...tbody.__}>
+            <Body {...tbody.__}>
               {data.map((rowData, rowIndex) => {
-                const rowKey = rowData.key || rowIndex;
+                const rowKey = String(rowData.rowKey || rowData.key || rowData.id || rowIndex);
                 return (
-                  <BodyRow data-key={rowKey} key={rowKey} {...funcOr(tbody.tr, [rowData, rowIndex])}>
+                  <Body.Row data-key={rowKey} key={rowKey} {...mergeProps(
+                    funcOr(tr, [rowData, rowIndex]),
+                    funcOr(tbody.tr, [rowData, rowIndex])
+                  )}>
                     {columns.map((col, colIndex) => {
-                      const cellKey = rowKey ? (rowKey + colIndex) : colIndex;
-                      const cellRender = firstDefined(col.render, col.cell, col.td?.render, col.td?.children, null);
-                      const cellProps = mergeProps(funcOr(tbody.td, [rowData, rowIndex]), funcOr(col.td, [rowData, rowIndex]));
+                      const colKey = firstDefined(col.key, col.field, null);
+                      devmode(colKey);
+                      const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
+                      const cellRender = firstDefined(
+                        col.cell,
+                        col.render,
+                        col.td?.cell,
+                        col.td?.render,
+                        col.td?.children,
+                        null
+                      );
+                      const cellProps = mergeProps(
+                        funcOr(td, [rowData, rowIndex]),
+                        funcOr(tbody.td, [rowData, rowIndex]),
+                        funcOr(col.td, [rowData, rowIndex]),
+                      );
                       return cellRender != null ? (
-                        <BodyCell key={cellKey} {...cellProps}>
+                        <Body.Cell key={cellKey} {...cellProps}>
                           {funcOr(cellRender, [rowData, rowIndex])}
-                        </BodyCell>
+                        </Body.Cell>
                       ) : (
                         <BodyCell key={cellKey} {...cellProps}>
-                          {col.key ? rowData[col.key] : null}
+                          {colKey ? rowData[colKey] : null}
                         </BodyCell>
                       )
                     })}
-                  </BodyRow>
+                  </Body.Row>
                 )
               })}
             </Body>
 
             {footer === true ? (
               <Footer key={'tfoot'} {...funcOr(tfoot.__)}>
-                <FooterRow {...funcOr(tfoot.tr)}>
+                <Footer.Row {...funcOr(tfoot.tr)}>
                   {columns.map((col, colIndex) => (
-                    <FooterCell key={colIndex} {...mergeProps(funcOr(tfoot.td), funcOr(tfoot.th))}>
+                    <Footer.Cell key={colIndex} {...mergeProps(
+                      funcOr(td),
+                      funcOr(tfoot.td),
+                      funcOr(tfoot.th)
+                    )}>
                       {funcOr(col.footer)}
-                    </FooterCell>
+                    </Footer.Cell>
                   ))}
-                </FooterRow>
+                </Footer.Row>
               </Footer>
             ) : (
               isFunction(footer) ? footer({tfoot, columns}) : (footer || null)
             )}
           </>
         )}
-
       </table>
-
     </div>
   )
 }
 
-Table.Header = Header;
-Table.Body = Body;
-Table.Footer = Footer;
+// Table.Header = Header;
+// Table.Body = Body;
+// Table.Footer = Footer;
 
 export const BasicTable = {
 
   Table,
-
-  Header,
-  HeaderRow,
-  HeaderCell,
-
-  Body,
-  BodyRow,
   Row: BodyRow,
-  BodyCell,
   Cell: BodyCell,
 
+  Header,
+  // HeaderRow,
+  // HeaderCell,
+
+  Body,
+  // BodyRow,
+  // BodyCell,
+
   Footer,
-  FooterRow,
-  FooterCell
+  // FooterRow,
+  // FooterCell
 
 }
 

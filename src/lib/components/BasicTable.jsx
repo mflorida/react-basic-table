@@ -68,7 +68,15 @@ export default function BasicTable(props) {
           <tr {...funcOr(thead.tr)}>
             {columns.map((col, colIndex) => (
               <th key={colIndex} {...mergeProps(funcOr(thead.th), funcOr(col.th))}>
-                {funcOr(col.header || col.title || col.label || col.th?.render || col.th?.children)}
+                {funcOr(firstDefined(
+                  col.header,
+                  col.title,
+                  col.label,
+                  col.th?.cell,
+                  col.th?.render,
+                  col.th?.children,
+                  null
+                ))}
               </th>
             ))}
           </tr>
@@ -78,23 +86,38 @@ export default function BasicTable(props) {
         )}
 
         <tbody {...tbody.__}>
-        {data.map((rowData, rowIndex) => (
-          <tr key={rowData.rowKey || rowData.id || rowIndex} {...funcOr(tbody.tr, [rowData, rowIndex])}>
-            {columns.map((col, colIndex) => {
-              const cellRender = firstDefined(col.render, col.cell, col.td?.render, col.td?.children);
-              const cellProps = mergeProps(funcOr(tbody.td, [rowData, rowIndex]), funcOr(col.td, [rowData, rowIndex]));
-              return cellRender != null ? (
-                <td key={colIndex} {...cellProps}>
-                  {funcOr(cellRender, [rowData, rowIndex])}
-                </td>
-              ) : (
-                <td key={colIndex} {...cellProps}>
-                  {col.key ? rowData[col.key] : null}
-                </td>
-              )
-            })}
-          </tr>
-        ))}
+        {data.map((rowData, rowIndex) => {
+          const rowKey = String(rowData.rowKey || rowData.key || rowData.id || rowIndex);
+          return (
+              <tr data-key={rowKey} key={rowKey} {...funcOr(tbody.tr, [rowData, rowIndex])}>
+                {columns.map((col, colIndex) => {
+                  const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
+                  const cellRender = firstDefined(
+                    col.cell,
+                    col.render,
+                    col.td?.cell,
+                    col.td?.render,
+                    col.td?.children,
+                    null
+                  );
+                  const cellProps = mergeProps(
+                    funcOr(tbody.td, [rowData, rowIndex]),
+                    funcOr(col.td, [rowData, rowIndex])
+                  );
+                  return cellRender != null ? (
+                    <td key={cellKey} {...cellProps}>
+                      {funcOr(cellRender, [rowData, rowIndex])}
+                    </td>
+                  ) : (
+                    <td key={cellKey} {...cellProps}>
+                      {col.key || col.field ? rowData[col.key || col.field] : null}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          }
+        )}
         </tbody>
 
         {footer === true ? (
