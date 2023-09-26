@@ -224,7 +224,7 @@ export default function App() {
           ref: (tr) => {
             if (tr && movedRow != null) {
               if (+movedRow === +rowIndex) {
-                devmode('moved:', tr);
+                devmode(() => console.log('moved:', tr));
                 tr.classList.add('hilite');
                 setTimeout(() => {
                   tr.classList.remove('hilite');

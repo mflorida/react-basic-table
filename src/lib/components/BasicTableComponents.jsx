@@ -148,7 +148,7 @@ Footer.Cell = FooterCell;
 
 // <table>
 export function Table(props) {
-  devmode(props);
+  devmode(() => console.log(props));
 
   const {
     data = [],
@@ -199,7 +199,7 @@ export function Table(props) {
   Object.assign(tableConfig, { __: { className: '' } }, config);
 
   tableConfig.__.className = ['basic-table', tableConfig.__.className].join(' ').trim();
-  devmode(tableConfig);
+  devmode(() => console.log(tableConfig));
 
   const {
     tr = {},
@@ -254,7 +254,7 @@ export function Table(props) {
                 )}>
                   {columns.map((col, colIndex) => {
                     const colKey = firstDefined(col.key, col.field, null);
-                    devmode(colKey);
+                    devmode(() => console.log(colKey));
                     const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
                     const cellRender = firstDefined(
                       col.cell,

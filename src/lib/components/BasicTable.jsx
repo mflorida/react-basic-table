@@ -93,7 +93,7 @@ export default function BasicTable(props) {
               <tr data-key={rowKey} key={rowKey} {...funcOr(tbody.tr, [rowData, rowIndex])}>
                 {columns.map((col, colIndex) => {
                   const colKey = firstDefined(col.key, col.field, null);
-                  devmode(colKey);
+                  devmode(() => console.log(colKey));
                   const cellKey = rowKey ? (rowKey + '-' + colIndex) : colIndex;
                   const cellRender = firstDefined(
                     col.cell,

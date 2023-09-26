@@ -6,8 +6,11 @@
 export function devmode(arg, ...more) {
   // to enable, add 'devmode' or 'debug' to url hash
   if (/devmode|debug/i.test(window.location.hash)) {
-    if (isFunction(arg)) console.log(arg());
-    if (arg) console.log(arg, ...more);
+    if (isFunction(arg)) {
+      arg();
+    } else if (arg) {
+      console.log(arg, ...more);
+    }
     return true;
   }
   return false;
@@ -45,70 +48,72 @@ export function resolveClassNames(/* classNames1, classNames2, etc */) {
   return [...(new Set(classes.join(' ').split(/\s+/)))].join(' ');
 }
 
-// merge props with special consideration
-// for `className`, `style`, `children`, and `render` props
+// merge props with special consideration for
+// `className`, `style`, `children`, and `render` props
 export function mergeProps(a, b, etc) {
-
-  const props = { style: {} };
+  const output = {};
   const classes = [];
 
-  for (let arg of arguments) {
-
+  for (let current of arguments) {
     // falsey? move on. (should be an object)
-    if (!arg) continue;
-
-    let propsArg = arg;
+    if (!current) continue;
 
     // don't completely choke if there's an error
     try {
-
-      // if currently iterating props is a function...
-      // ...run it (if using a function, it should return an object)
-      if (isFunction(arg)) {
-        propsArg = arg();
+      // if 'current' item is a function...
+      // ...run it (it *must* return an object)
+      if (isFunction(current)) {
+        current = current();
       }
 
-      if (!isPlainObject(propsArg)) {
-        console.warn(`'props' must be an Object`, propsArg);
+      if (!isPlainObject(current)) {
+        console.warn(`'props' must be an Object`, current);
         continue;
       }
 
-      // initial merge
-      Object.assign(props, propsArg);
+      // destructure to pull out 'special' props
+      // ('children' and 'render' are destructured to be ignored)
+      const {
+        className = '',
+        style = null,
+        children,
+        render,
+        ...other
+      } = current;
 
       // have className will push
-      if (propsArg.className) {
-        classes.push(propsArg.className);
+      if (className) {
+        classes.push(className);
       }
 
-      // pile the styles
-      if (propsArg.style) {
-        for (let [styleProp, styleValue] of Object.entries(propsArg.style)) {
+      // handle style object
+      if (style && isPlainObject(style)) {
+        output.style = output.style || {};
+        for (const [styleProp, styleValue] of Object.entries(style)) {
           // remove style properties with `null` value
           if (styleValue === null) {
-            delete props.style[styleProp];
-            delete propsArg.style[styleProp];
+            delete output.style[styleProp];
+            continue;
           }
+          // add non-null styles
+          output.style[styleProp] = styleValue;
         }
-        // add styles
-        Object.assign(props.style, propsArg.style);
       }
+
+      // merge remaining props
+      Object.assign(output, other);
+
     } catch (e) {
       console.warn('mergProps()', e);
     }
-
   }
 
-  props.className = resolveClassNames(classes);
-
-  // remove `children` and `render` from new props object
-  // (they will still be on the original objects)
-  delete props.children;
-  delete props.render;
+  if (classes.length) {
+    output.className = resolveClassNames(classes);
+  }
 
   // return merged props object
-  return props;
-
+  return output;
 }
 
 const objectString = (o) => Object.prototype.toString.call(o);
