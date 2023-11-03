@@ -26,42 +26,42 @@ The config should look something like this:
 
 ```jsx
 const columnsConfig = [
-    {
-        key: 'username',
-        header: 'Username',
-        cell: (rowData) => {
-            return (
-                <Link to={`/users/${rowData.username}`}>
-                    {userName}
-                </Link>
-            )
-        },
-        //sort: true,  // not yet implemented
-        //filter: true // not yet implemented
+  {
+    key: 'username',
+    header: 'Username',
+    cell: (rowData) => {
+      return (
+        <Link to={`/users/${rowData.username}`}>
+          {userName}
+        </Link>
+      )
     },
-    {
-        // most basic usage - data key and header label
-        key: 'firstName',
-        header: 'First Name'
-    },
-    {
-        key: 'lastName',
-        header: 'Last Name'
-    },
-    {
-        // null key means there is no directly 
-        // corresponding property in the data object
-        key: null,  
-        header: () => <><Icon type={'postage'}/>Full Address</>,
-        cell: ({ street, city, state, zip }) => `${street}, ${city}, ${state} ${zip}`
-    },
-    {
-        key: 'lastLogin',
-        header: 'Last Login',
-        th: { style: { textAlign: 'center '} },
-        td: { style: { textAlign: 'center', fontFamily: 'monospace' } },
-        cell: ({ lastLogin }) => (new Date(lastLogin)).toLocaleString(),
-    }
+    //sort: true,  // not yet implemented
+    //filter: true // not yet implemented
+  },
+  {
+    // most basic usage - data key and header label
+    key: 'firstName',
+    header: 'First Name'
+  },
+  {
+    key: 'lastName',
+    header: 'Last Name'
+  },
+  {
+    // null key means there is no directly 
+    // corresponding property in the data object
+    key: null,
+    header: () => <><Icon type={'postage'}/>Full Address</>,
+    cell: ({ street, city, state, zip }) => `${street}, ${city}, ${state} ${zip}`
+  },
+  {
+    key: 'lastLogin',
+    header: 'Last Login',
+    th: { style: { textAlign: 'center ' } },
+    td: { style: { textAlign: 'center', fontFamily: 'monospace' } },
+    cell: ({ lastLogin }) => (new Date(lastLogin)).toLocaleString()
+  }
 ]
 ```
 
