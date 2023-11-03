@@ -75,11 +75,15 @@ export function TableFromMap({ data }) {
   const config = {
     table: {
       __: { style: { width: '100%' } },
-      td: { style: cellStyle },
-      th: { style: cellStyle },
-      thead: {},
-      tbody: {},
-      tfoot: {}
+      thead: {
+        th: { style: cellStyle },
+      },
+      tbody: {
+        td: { style: cellStyle },
+      },
+      tfoot: {
+        td: { style: cellStyle },
+      }
     }
   };
 
