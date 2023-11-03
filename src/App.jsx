@@ -272,7 +272,7 @@ export default function App() {
     <div className="App" style={outerStyle}>
       <div id={'debug'} style={{ width: 960, margin: 'auto' }}>
         <div id={'devmode'} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <button type={'button'} style={{ width: 130, fontSize: 14 }} onClick={toggleDevmode}>
+          <button type={'button'} style={{ minWidth: 150, fontSize: 14 }} onClick={toggleDevmode}>
             {devmode() ? 'disable devmode' : 'enable devmode'}
           </button>
           <small style={{ color: '#808080', fontSize: 12 }}>
